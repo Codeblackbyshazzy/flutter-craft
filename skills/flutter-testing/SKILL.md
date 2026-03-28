@@ -350,7 +350,7 @@ void main() {
         theme: ThemeData.dark(),
         home: Scaffold(
           body: UserCard(
-            user: User(id: '1', name: 'Test User', avatar: 'https://example.com/avatar.png'),
+            user: User(id: '1', name: 'Test User', avatar: 'assets/test/avatar.png'),
           ),
         ),
       ),

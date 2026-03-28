@@ -29,8 +29,10 @@ Priority 3: Widget Tests (Optional)
   ├── Widget rendering
   └── Navigation
 
-Optional: Golden Tests
-  └── Visual regression for design system
+Priority 4: Golden Tests (Visual Regression)
+  ├── Design system component snapshots
+  ├── Pixel-perfect comparison
+  └── CI integration
 
 Optional: Integration Tests
   └── Full app flow testing
@@ -308,6 +310,120 @@ void main() {
   });
 }
 ```
+
+## Priority 4: Golden Tests (Visual Regression)
+
+디자인 시스템 컴포넌트의 시각적 일관성을 검증합니다. UI가 의도치 않게 변경되는 것을 방지합니다.
+
+### Golden Test Template
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('LoginButton matches golden', (tester) async {
+    // 고정 크기로 일관된 스크린샷 보장
+    await tester.binding.setSurfaceSize(const Size(400, 200));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: LoginButton(onPressed: () {}),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+      find.byType(LoginButton),
+      matchesGoldenFile('goldens/login_button.png'),
+    );
+  });
+
+  testWidgets('UserCard dark mode matches golden', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(400, 300));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData.dark(),
+        home: Scaffold(
+          body: UserCard(
+            user: User(id: '1', name: 'Test User', avatar: 'https://example.com/avatar.png'),
+          ),
+        ),
+      ),
+    );
+
+    await expectLater(
+      find.byType(UserCard),
+      matchesGoldenFile('goldens/user_card_dark.png'),
+    );
+  });
+}
+```
+
+### Golden File Management
+
+```bash
+# 최초 생성 / 기준선 업데이트 (의도적 변경 후)
+flutter test --update-goldens
+
+# 비교 실행 (CI/CD에서 사용)
+flutter test --tags golden
+
+# 특정 파일만
+flutter test test/features/auth/presentation/widgets/login_button_golden_test.dart --update-goldens
+```
+
+### 테스트 파일 명명 규칙
+
+골든 테스트 파일은 `_golden_test.dart` 접미사로 구분:
+```
+test/features/auth/presentation/widgets/
+├── login_button_test.dart         # 기능 테스트 (Priority 3)
+└── login_button_golden_test.dart  # 골든 테스트 (Priority 4)
+```
+
+### 태그 기반 실행
+
+`dart_test.yaml`에서 골든 테스트를 태그로 분리:
+```yaml
+tags:
+  golden:
+    # CI에서 별도 실행 가능
+```
+
+테스트 파일에 태그 추가:
+```dart
+@Tags(['golden'])
+library;
+
+import 'package:flutter_test/flutter_test.dart';
+// ...
+```
+
+### Golden Test 작성 시 주의사항
+
+1. **고정 크기**: `setSurfaceSize()`로 일관된 캔버스 크기 설정
+2. **결정적 데이터**: 랜덤/시간 의존 데이터 사용 금지
+3. **폰트 로딩**: 커스텀 폰트는 `FontLoader`로 미리 로드
+4. **네트워크 이미지**: Mock으로 대체 (네트워크 의존성 제거)
+5. **플랫폼 차이**: macOS/Linux/Windows에서 렌더링이 다를 수 있음 → CI 환경 고정
+
+### 언제 Golden Test를 작성하는가
+
+- 디자인 시스템 컴포넌트 (Button, Card, Input, Badge 등)
+- 테마 변경 후 시각적 영향 검증
+- 다크 모드 / 라이트 모드 전환 검증
+- 반응형 레이아웃의 브레이크포인트별 검증
+
+### 언제 Golden Test를 건너뛰는가
+
+- 비즈니스 로직 위주 화면 (데이터 표시만 다름)
+- 자주 변경되는 화면 (골든 파일 업데이트 비용 > 이득)
+- 외부 데이터에 크게 의존하는 화면
 
 ## Test File Structure
 

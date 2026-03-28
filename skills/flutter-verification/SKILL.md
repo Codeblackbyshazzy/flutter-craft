@@ -234,3 +234,63 @@ flutter build apk --debug  # or appropriate build target
 ```
 
 This is non-negotiable.
+
+---
+
+## 5. Visual Verification (Optional — Flutter Web)
+
+UI 변경이 포함된 작업에서, design-polish 플러그인이 설치되어 있다면 시각적 검증을 수행합니다.
+**설치되어 있지 않으면 이 단계를 건너뜁니다 (SOFT_FAIL).**
+
+### 전제 조건
+
+- design-polish 플러그인 설치됨 (`~/.claude/plugins/marketplaces/design-polish` 또는 `~/.claude/plugins/design-polish`)
+- `scripts/capture.cjs` 존재
+- Node.js + npx 사용 가능
+
+### 절차
+
+1. **Flutter Web 빌드**
+   ```bash
+   flutter build web
+   ```
+
+2. **빌드 결과 로컬 서빙**
+   ```bash
+   npx serve build/web -l 3000 &
+   SERVER_PID=$!
+   ```
+
+3. **스크린샷 + WCAG 체크**
+   ```bash
+   BASE_URL=http://localhost:3000 node <design-polish-path>/scripts/capture.cjs --wcag /
+   ```
+
+4. **결과 확인**
+   - `.design-polish/health-score.json`: 디자인 건강 점수 (0-100)
+   - `.design-polish/accessibility/wcag-report.json`: WCAG 위반 사항
+   - `.design-polish/screenshots/current-main.png`: 현재 스크린샷
+
+5. **서버 종료**
+   ```bash
+   kill $SERVER_PID 2>/dev/null
+   ```
+
+### 판정 기준
+
+| 결과 | 조건 | 액션 |
+|------|------|------|
+| **PASS** | WCAG 위반 0개, Health Score ≥ 60 | 완료 |
+| **WARN** | WCAG 위반 1-3개 (minor/moderate) | 개선 권장, 차단 아님 |
+| **FAIL** | WCAG critical 위반 존재 | 수정 권장 (SOFT_FAIL: 차단하지 않음) |
+| **SKIP** | design-polish 미설치 | 건너뜀 |
+
+### 증거 기록
+
+```markdown
+**Visual Verification:**
+- Health Score: 85/100
+- WCAG: 0 violations
+- Screenshot: .design-polish/screenshots/current-main.png
+✅ Visual check passed (or ⚠️ skipped / ⚠️ warnings found)
+```

@@ -131,7 +131,7 @@ sealed class TaskModel with _$TaskModel {
 
 ```dart
 // lib/features/task/domain/repositories/task_repository.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/task.dart';
 
@@ -283,7 +283,7 @@ class TaskLocalDataSourceImpl implements TaskLocalDataSource {
 
 ```dart
 // lib/features/task/data/repositories/task_repository_impl.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/task.dart';
@@ -403,7 +403,7 @@ class TaskRepositoryImpl implements TaskRepository {
 
 ```dart
 // lib/features/task/domain/usecases/get_tasks.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -492,23 +492,23 @@ part 'task_bloc.freezed.dart';
 // Events
 @freezed
 sealed class TaskEvent with _$TaskEvent {
-  const factory TaskEvent.loadTasks() = _LoadTasks;
-  const factory TaskEvent.loadTasksByStatus(TaskStatus status) = _LoadTasksByStatus;
-  const factory TaskEvent.createTask(Task task) = _CreateTask;
-  const factory TaskEvent.completeTask(String id) = _CompleteTask;
-  const factory TaskEvent.updateStatus(String id, TaskStatus status) = _UpdateStatus;
+  const factory TaskEvent.loadTasks() = TaskEventLoadTasks;
+  const factory TaskEvent.loadTasksByStatus(TaskStatus status) = TaskEventLoadTasksByStatus;
+  const factory TaskEvent.createTask(Task task) = TaskEventCreateTask;
+  const factory TaskEvent.completeTask(String id) = TaskEventCompleteTask;
+  const factory TaskEvent.updateStatus(String id, TaskStatus status) = TaskEventUpdateStatus;
 }
 
 // States
 @freezed
 sealed class TaskState with _$TaskState {
-  const factory TaskState.initial() = _Initial;
-  const factory TaskState.loading() = _Loading;
+  const factory TaskState.initial() = TaskStateInitial;
+  const factory TaskState.loading() = TaskStateLoading;
   const factory TaskState.loaded({
     required List<Task> tasks,
     TaskStatus? filterStatus,
-  }) = _Loaded;
-  const factory TaskState.error(String message) = _Error;
+  }) = TaskStateLoaded;
+  const factory TaskState.error(String message) = TaskStateError;
 }
 
 // BLoC
@@ -528,49 +528,44 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     this._updateTaskStatus,
   ) : super(const TaskState.initial()) {
     on<TaskEvent>((event, emit) async {
-      await event.map(
-        loadTasks: (_) async {
+      switch (event) {
+        case TaskEventLoadTasks():
           emit(const TaskState.loading());
           final result = await _getTasks(const NoParams());
           result.fold(
             (failure) => emit(TaskState.error(failure.message)),
             (tasks) => emit(TaskState.loaded(tasks: tasks)),
           );
-        },
-        loadTasksByStatus: (e) async {
+        case TaskEventLoadTasksByStatus(:final status):
           emit(const TaskState.loading());
-          final result = await _getTasksByStatus(e.status);
+          final result = await _getTasksByStatus(status);
           result.fold(
             (failure) => emit(TaskState.error(failure.message)),
-            (tasks) => emit(TaskState.loaded(tasks: tasks, filterStatus: e.status)),
+            (tasks) => emit(TaskState.loaded(tasks: tasks, filterStatus: status)),
           );
-        },
-        createTask: (e) async {
+        case TaskEventCreateTask(:final task):
           emit(const TaskState.loading());
-          final result = await _createTask(e.task);
+          final result = await _createTask(task);
           await result.fold(
             (failure) async => emit(TaskState.error(failure.message)),
             (_) async => add(const TaskEvent.loadTasks()),
           );
-        },
-        completeTask: (e) async {
-          final result = await _completeTask(e.id);
+        case TaskEventCompleteTask(:final id):
+          final result = await _completeTask(id);
           await result.fold(
             (failure) async => emit(TaskState.error(failure.message)),
             (_) async => add(const TaskEvent.loadTasks()),
           );
-        },
-        updateStatus: (e) async {
+        case TaskEventUpdateStatus(:final id, :final status):
           final result = await _updateTaskStatus(UpdateTaskStatusParams(
-            id: e.id,
-            status: e.status,
+            id: id,
+            status: status,
           ));
           await result.fold(
             (failure) async => emit(TaskState.error(failure.message)),
             (_) async => add(const TaskEvent.loadTasks()),
           );
-        },
-      );
+      }
     });
   }
 }
@@ -704,10 +699,10 @@ class TaskListPage extends StatelessWidget {
           Expanded(
             child: BlocBuilder<TaskBloc, TaskState>(
               builder: (context, state) {
-                return state.when(
-                  initial: () => const Center(child: Text('Add your first task')),
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  loaded: (tasks, filterStatus) => tasks.isEmpty
+                return switch (state) {
+                  TaskStateInitial() => const Center(child: Text('Add your first task')),
+                  TaskStateLoading() => const Center(child: CircularProgressIndicator()),
+                  TaskStateLoaded(:final tasks) => tasks.isEmpty
                       ? const Center(child: Text('No tasks'))
                       : ListView.builder(
                           itemCount: tasks.length,
@@ -721,8 +716,8 @@ class TaskListPage extends StatelessWidget {
                                 .add(TaskEvent.updateStatus(tasks[index].id, status)),
                           ),
                         ),
-                  error: (message) => Center(child: Text('Error: $message')),
-                );
+                  TaskStateError(:final message) => Center(child: Text('Error: $message')),
+                };
               },
             ),
           ),

@@ -138,9 +138,9 @@ Include Flutter commands where relevant:
 ```bash
 flutter analyze
 flutter test
-flutter build apk --debug
+flutter build <target> --debug
 flutter pub get
-flutter pub run build_runner build
+dart run build_runner build
 ```
 
 ## Testing Your Skill

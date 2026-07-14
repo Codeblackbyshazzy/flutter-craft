@@ -67,20 +67,25 @@ flutter test test/features/<feature>/data/repositories/user_repository_test.dart
 00:03 +10 -2: Some tests failed.
 ```
 
-### 3. Build Verification
+### 3. Build Verification (finishing 단계에서 1회 — 매 완료 주장마다 아님)
+
+Run against the project's actual target platform only:
 
 ```bash
-# Android debug build
+# Android
 flutter build apk --debug
 
-# iOS debug build (macOS only)
+# iOS (macOS only)
 flutter build ios --debug --no-codesign
 
-# Web build
+# Web
 flutter build web
+
+# Desktop
+flutter build windows / macos / linux
 ```
 
-**Expected output:**
+**Expected output (example, Android):**
 ```
 ✓ Built build/app/outputs/flutter-apk/app-debug.apk (XX.XMB)
 ```
@@ -230,10 +235,13 @@ Run the command. Read the output. THEN claim the result.
 # Always run these before claiming completion:
 flutter analyze
 flutter test
-flutter build apk --debug  # or appropriate build target
 ```
 
 This is non-negotiable.
+
+A full `flutter build` is NOT required at every completion claim — it is slow
+and platform-dependent. It runs once, in flutter-finishing, against the
+project's actual target platform.
 
 ---
 

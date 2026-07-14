@@ -187,6 +187,8 @@ sealed class Comment with _$Comment {
 # Minimal preset (always included)
 flutter pub add freezed_annotation
 flutter pub add drift
+flutter pub add path_provider      # required by app_database.dart
+flutter pub add path               # required by app_database.dart
 flutter pub add get_it
 flutter pub add injectable
 flutter pub add dev:freezed
@@ -194,10 +196,16 @@ flutter pub add dev:build_runner
 flutter pub add dev:injectable_generator
 flutter pub add dev:drift_dev
 
+# State management (per Step 3 selection — exactly one)
+flutter pub add flutter_riverpod riverpod_annotation
+flutter pub add dev:riverpod_generator
+# or:
+flutter pub add flutter_bloc
+
 # Essential preset adds
 flutter pub add go_router
 flutter pub add dio
-flutter pub add dartz              # Either type for error handling
+flutter pub add fpdart             # Either type for error handling (dartz is unmaintained)
 
 # Full preset adds
 flutter pub add easy_localization
@@ -337,7 +345,7 @@ Based on selected preset, add all required dependencies.
 
 ```bash
 flutter pub get
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### 4.6 Validation (REQUIRED)
@@ -350,7 +358,7 @@ flutter analyze
 
 If errors exist:
 1. Fix each error
-2. Re-run `flutter pub run build_runner build`
+2. Re-run `dart run build_runner build`
 3. Re-run `flutter analyze`
 4. Repeat until 0 errors
 
@@ -380,7 +388,7 @@ git commit -m "Initial commit: <project_name> with Clean Architecture
 - [ ] Database tables created in Drift
 - [ ] DI configured with injectable
 - [ ] `flutter pub get` successful
-- [ ] `flutter pub run build_runner build` successful
+- [ ] `dart run build_runner build` successful
 - [ ] `flutter analyze` returns 0 errors
 - [ ] Git initialized with initial commit
 

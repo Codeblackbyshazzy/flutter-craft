@@ -93,6 +93,18 @@ These thoughts mean STOP—you're rationalizing:
 | User says "review", "check my code" | flutter-review-request |
 | Multiple independent tasks identified | flutter-parallel-agents |
 
+## Lightweight Path (small changes)
+
+The full brainstorm → plan → execute chain is for **new features and behavior
+changes**. It is NOT required for trivial work. If ALL of these hold:
+
+- Single file (or a comment/typo/rename across files)
+- No new behavior, no state management change, no new dependency
+- No architecture decision to make
+
+then make the change directly and invoke **flutter-verification** only.
+When in doubt whether a change is trivial, it isn't — use the full chain.
+
 ## Skill Priority
 
 When multiple skills could apply, use this order:
@@ -104,6 +116,7 @@ When multiple skills could apply, use this order:
 Example flows:
 - "Add login feature" → flutter-brainstorming → flutter-planning → flutter-executing
 - "Fix auth bug" → flutter-debugging → flutter-verification
+- "Fix typo in a label" → direct edit → flutter-verification (lightweight path)
 - "Review my code" → flutter-review-request
 
 ## Clean Architecture Reminder

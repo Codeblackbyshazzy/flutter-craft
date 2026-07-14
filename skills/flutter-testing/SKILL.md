@@ -44,11 +44,11 @@ Optional: Integration Tests
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
+import 'package:mocktail/mocktail.dart';
 
-@GenerateMocks([UserRemoteDataSource, UserLocalDataSource])
-import 'user_repository_impl_test.mocks.dart';
+class MockUserRemoteDataSource extends Mock implements UserRemoteDataSource {}
+
+class MockUserLocalDataSource extends Mock implements UserLocalDataSource {}
 
 void main() {
   late UserRepositoryImpl repository;
@@ -71,7 +71,7 @@ void main() {
 
     test('should return User when remote data source succeeds', () async {
       // Arrange
-      when(mockRemoteDataSource.getUser(any))
+      when(() => mockRemoteDataSource.getUser(any()))
           .thenAnswer((_) async => tUserModel);
 
       // Act
@@ -79,12 +79,12 @@ void main() {
 
       // Assert
       expect(result, equals(tUserEntity));
-      verify(mockRemoteDataSource.getUser(tUserId));
+      verify(() => mockRemoteDataSource.getUser(tUserId));
     });
 
     test('should throw Exception when remote data source fails', () async {
       // Arrange
-      when(mockRemoteDataSource.getUser(any))
+      when(() => mockRemoteDataSource.getUser(any()))
           .thenThrow(Exception('Server error'));
 
       // Act & Assert
@@ -102,17 +102,21 @@ void main() {
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
-@GenerateMocks([http.Client])
-import 'user_remote_datasource_test.mocks.dart';
+class MockHttpClient extends Mock implements http.Client {}
 
 void main() {
   late UserRemoteDataSourceImpl dataSource;
-  late MockClient mockHttpClient;
+  late MockHttpClient mockHttpClient;
+
+  setUpAll(() {
+    // mocktail needs a fallback for non-primitive matcher types
+    registerFallbackValue(Uri.parse('https://example.com'));
+  });
 
   setUp(() {
-    mockHttpClient = MockClient();
+    mockHttpClient = MockHttpClient();
     dataSource = UserRemoteDataSourceImpl(client: mockHttpClient);
   });
 
@@ -122,7 +126,7 @@ void main() {
 
     test('should return UserModel when response is 200', () async {
       // Arrange
-      when(mockHttpClient.get(any, headers: anyNamed('headers')))
+      when(() => mockHttpClient.get(any(), headers: any(named: 'headers')))
           .thenAnswer((_) async => http.Response(tUserJson, 200));
 
       // Act
@@ -135,7 +139,7 @@ void main() {
 
     test('should throw ServerException when response is not 200', () async {
       // Arrange
-      when(mockHttpClient.get(any, headers: anyNamed('headers')))
+      when(() => mockHttpClient.get(any(), headers: any(named: 'headers')))
           .thenAnswer((_) async => http.Response('Error', 500));
 
       // Act & Assert
@@ -155,10 +159,9 @@ void main() {
 ```dart
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
-@GenerateMocks([GetUserUseCase])
-import 'user_bloc_test.mocks.dart';
+class MockGetUserUseCase extends Mock implements GetUserUseCase {}
 
 void main() {
   late UserBloc bloc;
@@ -180,7 +183,7 @@ void main() {
   blocTest<UserBloc, UserState>(
     'should emit [Loading, Loaded] when GetUser succeeds',
     build: () {
-      when(mockGetUser(any))
+      when(() => mockGetUser(any()))
           .thenAnswer((_) async => const User(id: '1', name: 'Test'));
       return bloc;
     },
@@ -194,7 +197,7 @@ void main() {
   blocTest<UserBloc, UserState>(
     'should emit [Loading, Error] when GetUser fails',
     build: () {
-      when(mockGetUser(any)).thenThrow(Exception('error'));
+      when(() => mockGetUser(any())).thenThrow(Exception('error'));
       return bloc;
     },
     act: (bloc) => bloc.add(const GetUserEvent('1')),
@@ -211,7 +214,9 @@ void main() {
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockUserRepository extends Mock implements UserRepository {}
 
 void main() {
   late ProviderContainer container;
@@ -232,7 +237,7 @@ void main() {
 
   test('should return user when fetchUser succeeds', () async {
     // Arrange
-    when(mockRepository.getUser(any))
+    when(() => mockRepository.getUser(any()))
         .thenAnswer((_) async => const User(id: '1', name: 'Test'));
 
     // Act
@@ -249,10 +254,13 @@ void main() {
 ### Widget Test Template
 
 ```dart
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockUserBloc extends MockBloc<UserEvent, UserState> implements UserBloc {}
 
 void main() {
   late MockUserBloc mockBloc;
@@ -273,7 +281,7 @@ void main() {
   testWidgets('should display loading indicator when state is Loading',
       (tester) async {
     // Arrange
-    when(mockBloc.state).thenReturn(UserLoading());
+    when(() => mockBloc.state).thenReturn(UserLoading());
 
     // Act
     await tester.pumpWidget(createWidgetUnderTest());
@@ -285,7 +293,7 @@ void main() {
   testWidgets('should display user name when state is Loaded',
       (tester) async {
     // Arrange
-    when(mockBloc.state).thenReturn(
+    when(() => mockBloc.state).thenReturn(
       const UserLoaded(User(id: '1', name: 'John Doe')),
     );
 
@@ -468,27 +476,22 @@ genhtml coverage/lcov.info -o coverage/html
 ## Test Dependencies
 
 ```bash
-# Mocking (choose one)
-flutter pub add dev:mockito        # Requires codegen
-flutter pub add dev:mocktail       # No codegen required (recommended)
-
-# Code generation
-flutter pub add dev:build_runner
+# Mocking — mocktail (no codegen; all templates in this skill use it)
+flutter pub add dev:mocktail
 
 # State management testing
-flutter pub add dev:bloc_test      # If using BLoC
-flutter pub add dev:riverpod_test  # If using Riverpod (optional)
+flutter pub add dev:bloc_test      # If using BLoC (also provides MockBloc)
 
 # Freezed (if using immutable states)
 flutter pub add freezed_annotation
 flutter pub add dev:freezed
+flutter pub add dev:build_runner   # For freezed codegen only
 ```
 
-## Generate Mocks
+## Generate Code (Freezed states etc.)
 
 ```bash
-# Generate mock files
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 ```
 
 ## Key Principles

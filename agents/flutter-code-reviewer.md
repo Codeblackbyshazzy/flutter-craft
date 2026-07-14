@@ -71,6 +71,10 @@ When reviewing completed Flutter work, you will:
 - [ ] Critical user interactions tested
 - [ ] Widget renders correctly in different states
 
+**Priority 4 - Golden Tests (Optional):**
+- [ ] Design-system components have golden snapshots where visual regressions matter
+- [ ] Goldens updated intentionally (`--update-goldens`), not to silence failures
+
 ## 5. Issue Identification
 
 Categorize issues as:
@@ -120,6 +124,7 @@ Categorize issues as:
 - Priority 1 (Repository/DataSource): ✅/❌
 - Priority 2 (State Management): ✅/❌
 - Priority 3 (Widget): ✅/❌/N/A
+- Priority 4 (Golden): ✅/❌/N/A
 
 ### Verification Results
 - flutter analyze: [result]

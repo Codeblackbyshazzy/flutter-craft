@@ -128,7 +128,7 @@ class HabitRecords extends Table {
 
 ```dart
 // lib/features/habit/domain/repositories/habit_repository.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/habit.dart';
 import '../entities/habit_record.dart';

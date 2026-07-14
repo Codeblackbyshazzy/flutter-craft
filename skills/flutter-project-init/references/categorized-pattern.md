@@ -183,7 +183,7 @@ sealed class CategoryModel with _$CategoryModel {
 
 ```dart
 // lib/features/expense/domain/repositories/expense_repository.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/expense.dart';
 import '../entities/expense_with_category.dart';
@@ -372,7 +372,7 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
 
 ```dart
 // lib/features/expense/domain/usecases/get_expenses_with_category.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -459,12 +459,12 @@ part 'expense_bloc.freezed.dart';
 // Events
 @freezed
 sealed class ExpenseEvent with _$ExpenseEvent {
-  const factory ExpenseEvent.loadExpenses() = _LoadExpenses;
-  const factory ExpenseEvent.loadByCategory(String categoryId) = _LoadByCategory;
-  const factory ExpenseEvent.loadByDateRange(DateTime start, DateTime end) = _LoadByDateRange;
-  const factory ExpenseEvent.createExpense(Expense expense) = _CreateExpense;
-  const factory ExpenseEvent.deleteExpense(String id) = _DeleteExpense;
-  const factory ExpenseEvent.loadCategories() = _LoadCategories;
+  const factory ExpenseEvent.loadExpenses() = ExpenseEventLoadExpenses;
+  const factory ExpenseEvent.loadByCategory(String categoryId) = ExpenseEventLoadByCategory;
+  const factory ExpenseEvent.loadByDateRange(DateTime start, DateTime end) = ExpenseEventLoadByDateRange;
+  const factory ExpenseEvent.createExpense(Expense expense) = ExpenseEventCreateExpense;
+  const factory ExpenseEvent.deleteExpense(String id) = ExpenseEventDeleteExpense;
+  const factory ExpenseEvent.loadCategories() = ExpenseEventLoadCategories;
 }
 
 // States
@@ -499,8 +499,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     this._getCategories,
   ) : super(const ExpenseState()) {
     on<ExpenseEvent>((event, emit) async {
-      await event.map(
-        loadExpenses: (_) async {
+      switch (event) {
+        case ExpenseEventLoadExpenses():
           emit(state.copyWith(isLoading: true, error: null));
           final result = await _getExpensesWithCategory(const NoParams());
           result.fold(
@@ -515,10 +515,9 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
               ));
             },
           );
-        },
-        loadByCategory: (e) async {
-          emit(state.copyWith(isLoading: true, error: null, selectedCategoryId: e.categoryId));
-          final result = await _getExpensesByCategory(e.categoryId);
+        case ExpenseEventLoadByCategory(:final categoryId):
+          emit(state.copyWith(isLoading: true, error: null, selectedCategoryId: categoryId));
+          final result = await _getExpensesByCategory(categoryId);
           result.fold(
             (failure) => emit(state.copyWith(isLoading: false, error: failure.message)),
             (expenses) {
@@ -526,17 +525,16 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
               add(const ExpenseEvent.loadExpenses());
             },
           );
-        },
-        loadByDateRange: (e) async {
+        case ExpenseEventLoadByDateRange(:final start, :final end):
           emit(state.copyWith(
             isLoading: true,
-            startDate: e.start,
-            endDate: e.end,
+            startDate: start,
+            endDate: end,
           ));
           // Filter existing expenses by date range
           final filtered = state.expenses.where((exp) {
             final date = exp.expense.date;
-            return date.isAfter(e.start) && date.isBefore(e.end);
+            return date.isAfter(start) && date.isBefore(end);
           }).toList();
           final total = filtered.fold(0.0, (sum, e) => sum + e.expense.amount);
           emit(state.copyWith(
@@ -544,30 +542,26 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
             expenses: filtered,
             totalAmount: total,
           ));
-        },
-        createExpense: (e) async {
+        case ExpenseEventCreateExpense(:final expense):
           emit(state.copyWith(isLoading: true));
-          final result = await _createExpense(e.expense);
+          final result = await _createExpense(expense);
           result.fold(
             (failure) => emit(state.copyWith(isLoading: false, error: failure.message)),
             (_) => add(const ExpenseEvent.loadExpenses()),
           );
-        },
-        deleteExpense: (e) async {
-          final result = await _deleteExpense(e.id);
+        case ExpenseEventDeleteExpense(:final id):
+          final result = await _deleteExpense(id);
           result.fold(
             (failure) => emit(state.copyWith(error: failure.message)),
             (_) => add(const ExpenseEvent.loadExpenses()),
           );
-        },
-        loadCategories: (_) async {
+        case ExpenseEventLoadCategories():
           final result = await _getCategories(const NoParams());
           result.fold(
             (failure) => emit(state.copyWith(error: failure.message)),
             (categories) => emit(state.copyWith(categories: categories)),
           );
-        },
-      );
+      }
     });
   }
 }

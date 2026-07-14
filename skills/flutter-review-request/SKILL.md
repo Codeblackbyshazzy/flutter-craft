@@ -72,35 +72,10 @@ Task tool:
 
 ## Flutter-Specific Review Checklist
 
-The reviewer will check:
-
-### Clean Architecture
-- [ ] Domain/Data/Presentation separation
-- [ ] Dependencies point inward (Domain has no external deps)
-- [ ] Entities are pure Dart classes (no framework deps)
-- [ ] Repository interfaces in domain, implementations in data
-
-### State Management
-- [ ] Appropriate pattern for complexity (BLoC/Provider/Riverpod)
-- [ ] No business logic in widgets
-- [ ] Proper state transitions
-- [ ] Error state handling
-
-### Widget Composition
-- [ ] StatelessWidget preferred over StatefulWidget
-- [ ] Widgets are focused (single responsibility)
-- [ ] No deeply nested widget trees
-- [ ] Proper use of const constructors
-
-### Dart Style
-- [ ] Effective Dart guidelines followed
-- [ ] Proper null safety usage
-- [ ] No lint warnings (`flutter analyze` clean)
-
-### Testing
-- [ ] Repository tests present (Priority 1)
-- [ ] State management tests present (Priority 2)
-- [ ] Widget tests if complex UI (Priority 3)
+The full checklist (Clean Architecture, state management, widget composition,
+Dart style, priority-based test coverage including golden tests) lives in the
+reviewer itself: `agents/flutter-code-reviewer.md`. It is the single source of
+truth — do not duplicate it here; the dispatched agent applies it.
 
 ## Example
 

@@ -51,7 +51,7 @@ flutter pub get
 flutter doctor
 
 # If needed, run code generation
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### Step 4: Verify Setup
@@ -124,7 +124,7 @@ Each worktree has its own:
 If project uses code generation (freezed, json_serializable, etc.):
 
 ```bash
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### IDE Setup
@@ -150,7 +150,7 @@ git worktree add -b feature/auth ../flutter-app-auth main
 # 2. Navigate and setup
 cd ../flutter-app-auth
 flutter pub get
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 
 # 3. Verify
 flutter analyze

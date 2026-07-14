@@ -28,7 +28,6 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 - Riverpod (권장)
 - Bloc/Cubit
 - Provider
-- GetX
 
 ### 아키텍처
 - Clean Architecture
@@ -81,14 +80,14 @@ lib/
 ```dart
 // providers/auth_provider.dart
 
-// 상태 정의
+// 상태 정의 (Freezed 3.x: union 클래스는 sealed 필수, .when()/.map() 제거됨)
 @freezed
-class AuthState with _$AuthState {
-  const factory AuthState.initial() = _Initial;
-  const factory AuthState.loading() = _Loading;
-  const factory AuthState.authenticated(User user) = _Authenticated;
-  const factory AuthState.unauthenticated() = _Unauthenticated;
-  const factory AuthState.error(String message) = _Error;
+sealed class AuthState with _$AuthState {
+  const factory AuthState.initial() = AuthInitial;
+  const factory AuthState.loading() = AuthLoading;
+  const factory AuthState.authenticated(User user) = AuthAuthenticated;
+  const factory AuthState.unauthenticated() = AuthUnauthenticated;
+  const factory AuthState.error(String message) = AuthError;
 }
 
 // Notifier 정의
@@ -121,13 +120,12 @@ class LoginScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     
-    return authState.when(
-      initial: () => LoginForm(),
-      loading: () => LoadingIndicator(),
-      authenticated: (user) => HomeScreen(),
-      unauthenticated: () => LoginForm(),
-      error: (message) => ErrorWidget(message: message),
-    );
+    return switch (authState) {
+      AuthInitial() || AuthUnauthenticated() => LoginForm(),
+      AuthLoading() => LoadingIndicator(),
+      AuthAuthenticated(:final user) => HomeScreen(user: user),
+      AuthError(:final message) => ErrorWidget(message: message),
+    };
   }
 }
 ```
@@ -204,14 +202,15 @@ extension BuildContextX on BuildContext {
       SnackBar(content: Text(message)),
     );
   }
-  
-  Future<T?> push<T>(Widget page) {
-    return Navigator.push<T>(
-      this,
-      MaterialPageRoute(builder: (_) => page),
-    );
-  }
 }
+```
+
+라우팅은 go_router 기준 (명령형 `Navigator.push` 대신 선언적 라우트):
+
+```dart
+// 라우트 이동
+context.go('/users/$userId');       // 스택 교체
+context.push('/users/$userId');     // 스택에 push
 ```
 
 ## 성능 최적화
@@ -373,7 +372,7 @@ class MainActivity: FlutterActivity() {
 
 ### 코드 스타일
 - [ ] dart format 적용
-- [ ] dart analyze 통과
+- [ ] flutter analyze 통과
 - [ ] 명명 규칙 준수 (lowerCamelCase)
 - [ ] 불필요한 import 제거
 
@@ -383,10 +382,11 @@ class MainActivity: FlutterActivity() {
 - [ ] 이미지 최적화
 - [ ] 메모리 누수 체크
 
-### 테스트
-- [ ] 단위 테스트 작성
-- [ ] 위젯 테스트 작성
-- [ ] 골든 테스트 (UI 스냅샷)
+### 테스트 (우선순위 기반 — flutter-testing 스킬과 동일)
+- [ ] Priority 1: Repository/DataSource 단위 테스트 (필수)
+- [ ] Priority 2: 상태 관리 테스트 (필수)
+- [ ] Priority 3: 위젯 테스트 (복잡한 UI만, 선택)
+- [ ] Priority 4: 골든 테스트 (디자인 시스템 컴포넌트만, 선택)
 
 ### 앱 품질
 - [ ] 다양한 화면 크기 대응

@@ -28,8 +28,10 @@ flutter analyze
 flutter test
 # Expected: All tests passed!
 
-# Optional: Build check
-flutter build apk --debug
+# Build check — required once here, against the project's target platform
+# (apk / ios / web / windows / macos / linux). Skip only if the platform
+# toolchain is unavailable in this environment, and say so in the report.
+flutter build <target> --debug
 # Expected: Built successfully
 ```
 
@@ -195,9 +197,9 @@ flutter analyze
 flutter test
 # Must show: All tests passed!
 
-# 3. (Optional) Build verification
-flutter build apk --debug
-# Must show: Built build/app/outputs/...
+# 3. Build verification — once, per project target platform (see Step 1)
+flutter build <target> --debug
+# Must show: Built successfully
 ```
 
 ## Common Mistakes

@@ -143,6 +143,11 @@ Read the implementation code and verify:
 
 ### Code Quality Reviewer Subagent
 
+Dispatch with `subagent_type: "flutter-craft:flutter-code-reviewer"` — the full
+quality checklist (Clean Architecture, state management, widget quality, Dart
+style, priority-based test coverage) lives in that agent definition and is the
+single source of truth. Do not paste a checklist into the prompt.
+
 ```markdown
 You are reviewing Flutter code quality after spec compliance is confirmed.
 
@@ -153,32 +158,8 @@ You are reviewing Flutter code quality after spec compliance is confirmed.
 Base: {BASE_SHA}
 Head: {HEAD_SHA}
 
-## Flutter Code Quality Checklist
-
-**Clean Architecture:**
-- [ ] Proper layer separation (Domain/Data/Presentation)
-- [ ] Dependencies point inward
-- [ ] No framework imports in Domain layer
-
-**State Management:**
-- [ ] Appropriate pattern for complexity
-- [ ] Proper state transitions
-- [ ] Error state handling
-
-**Widget Quality:**
-- [ ] StatelessWidget preferred when possible
-- [ ] Proper const usage
-- [ ] No deeply nested trees
-
-**Dart Style:**
-- [ ] flutter analyze clean
-- [ ] Effective Dart followed
-- [ ] Proper null safety
-
-**Tests:**
-- [ ] Priority 1 tests (Repository/DataSource) present
-- [ ] Priority 2 tests (State) present if applicable
-- [ ] Tests actually test logic (not just mocks)
+Apply your full review checklist. Additionally verify that tests actually
+test logic (not just mocks).
 
 ## Output Format
 
@@ -235,7 +216,7 @@ Task 2: AuthRepository Interface (Domain Layer)
 
 Implementer: "Question: Should login return Either<Failure, User> or just User?"
 
-You: "Use Either<Failure, User> pattern with dartz package"
+You: "Use Either<Failure, User> pattern with fpdart package"
 
 Implementer: "Got it. Implementing..."
   - Created auth_repository.dart with Either return types

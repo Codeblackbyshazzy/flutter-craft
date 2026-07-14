@@ -62,9 +62,14 @@ Flutter-Craft provides a comprehensive set of skills for Flutter development, fo
 
 | Command | Description |
 |---------|-------------|
+| `/init` | Create a new Flutter project with Clean Architecture |
 | `/brainstorm` | Start feature design |
 | `/plan` | Create implementation plan |
 | `/execute` | Execute plan in batches |
+| `/test` | Write priority-based tests |
+| `/verify` | Evidence-based completion verification |
+| `/debug` | Systematic debugging |
+| `/finish` | Final verification + merge/PR/keep/discard |
 
 ## Clean Architecture
 
@@ -159,35 +164,37 @@ flutter-craft/
 ├── .claude-plugin/
 │   └── plugin.json
 ├── agents/
-│   └── flutter-code-reviewer.md
+│   ├── flutter-code-reviewer.md
+│   └── flutter-dart-specialist.md
 ├── commands/
+│   ├── init.md
 │   ├── brainstorm.md
 │   ├── plan.md
-│   └── execute.md
+│   ├── execute.md
+│   ├── test.md
+│   ├── verify.md
+│   ├── debug.md
+│   └── finish.md
 ├── hooks/
 │   ├── hooks.json
 │   ├── run-hook.cmd
 │   └── session-start.sh
-├── lib/
-│   └── skills-core.js
-├── skills/
-│   ├── start-flutter-craft/
-│   ├── flutter-project-init/
-│   ├── flutter-brainstorming/
-│   ├── flutter-planning/
-│   ├── flutter-executing/
-│   ├── flutter-verification/
-│   ├── flutter-debugging/
-│   ├── flutter-testing/
-│   ├── flutter-review-request/
-│   ├── flutter-review-receive/
-│   ├── flutter-subagent-dev/
-│   ├── flutter-parallel-agents/
-│   ├── flutter-worktrees/
-│   ├── flutter-finishing/
-│   └── flutter-writing-skills/
-└── tests/
-    └── sample-flutter-project/
+└── skills/
+    ├── start-flutter-craft/
+    ├── flutter-project-init/
+    ├── flutter-brainstorming/
+    ├── flutter-planning/
+    ├── flutter-executing/
+    ├── flutter-verification/
+    ├── flutter-debugging/
+    ├── flutter-testing/
+    ├── flutter-review-request/
+    ├── flutter-review-receive/
+    ├── flutter-subagent-dev/
+    ├── flutter-parallel-agents/
+    ├── flutter-worktrees/
+    ├── flutter-finishing/
+    └── flutter-writing-skills/
 ```
 
 ## License

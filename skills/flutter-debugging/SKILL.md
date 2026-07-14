@@ -345,9 +345,9 @@ Verify the fix with `flutter analyze`, `flutter test`, and manual testing.
 | **3. Hypothesis** | Form theory, minimal test | Confirmed or new hypothesis |
 | **4. Implementation** | Create test (priority-based), fix, verify | Bug resolved, analysis clean |
 
-## Real-World Impact
+## Why Systematic
 
-- Systematic approach: 15-30 minutes to fix
-- Random fixes approach: 2-3 hours of thrashing
-- First-time fix rate: 95% vs 40%
-- New bugs introduced: Near zero vs common
+Random fixes tend to thrash: each guess that fails contaminates the code and
+hides the original symptom. Root-cause-first debugging keeps the change set
+minimal, makes the fix verifiable, and avoids introducing new bugs while
+"trying things".

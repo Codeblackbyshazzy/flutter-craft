@@ -5,6 +5,28 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# Only inject into Flutter projects: require a pubspec.yaml that depends on
+# Flutter (cwd or one level up covers mono-repo roots). Non-Flutter sessions
+# get nothing — silent exit is the "allow" for SessionStart hooks.
+is_flutter_project() {
+    local dir="$1"
+    [[ -f "${dir}/pubspec.yaml" ]] && grep -q 'flutter' "${dir}/pubspec.yaml"
+}
+flutter_project_found=false
+if is_flutter_project "."; then
+    flutter_project_found=true
+else
+    for sub in ./*/; do
+        if is_flutter_project "${sub%/}"; then
+            flutter_project_found=true
+            break
+        fi
+    done
+fi
+if [[ "$flutter_project_found" != "true" ]]; then
+    exit 0
+fi
+
 # Read the start-flutter-craft skill content
 SKILL_FILE="${PLUGIN_ROOT}/skills/start-flutter-craft/SKILL.md"
 

@@ -66,13 +66,14 @@ Approach C: Provider + ChangeNotifier
 **Riverpod + Freezed Pattern Example:**
 
 ```dart
-// State with freezed
+// State with freezed (3.x: union classes must be sealed; use Dart 3
+// switch patterns instead of the removed .when()/.map())
 @freezed
-class AuthState with _$AuthState {
-  const factory AuthState.initial() = _Initial;
-  const factory AuthState.loading() = _Loading;
-  const factory AuthState.authenticated(User user) = _Authenticated;
-  const factory AuthState.error(String message) = _Error;
+sealed class AuthState with _$AuthState {
+  const factory AuthState.initial() = AuthInitial;
+  const factory AuthState.loading() = AuthLoading;
+  const factory AuthState.authenticated(User user) = AuthAuthenticated;
+  const factory AuthState.error(String message) = AuthError;
 }
 
 // Notifier with riverpod_generator

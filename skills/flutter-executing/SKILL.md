@@ -72,8 +72,8 @@ flutter analyze
 flutter test test/features/<feature>/
 # Expected: All tests passed!
 
-# Quick build check (optional)
-flutter build apk --debug --target-platform android-arm64
+# Quick build check (optional — full build runs once in flutter-finishing)
+flutter build <target> --debug   # apk / ios / web / windows … per project platform
 # Expected: Built successfully
 ```
 
@@ -116,7 +116,7 @@ After all tasks complete and verified:
    ```bash
    flutter analyze
    flutter test
-   flutter build apk --debug  # or ios
+   flutter build <target> --debug  # per project platform (apk/ios/web/…)
    ```
 
 2. **Announce:** "I'm using the flutter-finishing skill to complete this work."
@@ -134,7 +134,7 @@ After all tasks complete and verified:
 | Per-file | `flutter analyze lib/path/file.dart` | No issues found |
 | Per-batch | `flutter analyze lib/features/<feature>/` | No issues found |
 | Test | `flutter test test/features/<feature>/` | All tests passed |
-| Final | `flutter build apk --debug` | Built successfully |
+| Final | `flutter build <target> --debug` | Built successfully |
 
 ## When to Stop and Ask for Help
 

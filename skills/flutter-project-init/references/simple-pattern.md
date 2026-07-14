@@ -12,7 +12,7 @@ part 'note.freezed.dart';
 part 'note.g.dart';
 
 @freezed
-class Note with _$Note {
+abstract class Note with _$Note {
   const factory Note({
     required String id,
     required String title,
@@ -54,7 +54,7 @@ part 'note_model.freezed.dart';
 part 'note_model.g.dart';
 
 @freezed
-class NoteModel with _$NoteModel {
+abstract class NoteModel with _$NoteModel {
   const NoteModel._();
 
   const factory NoteModel({
@@ -89,7 +89,7 @@ class NoteModel with _$NoteModel {
 
 ```dart
 // lib/features/note/domain/repositories/note_repository.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/note.dart';
 
@@ -185,7 +185,7 @@ class NoteLocalDataSourceImpl implements NoteLocalDataSource {
 
 ```dart
 // lib/features/note/data/repositories/note_repository_impl.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/note.dart';
@@ -260,7 +260,7 @@ class NoteRepositoryImpl implements NoteRepository {
 
 ```dart
 // lib/features/note/domain/usecases/get_notes.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -338,19 +338,19 @@ part 'note_bloc.freezed.dart';
 // Events
 @freezed
 sealed class NoteEvent with _$NoteEvent {
-  const factory NoteEvent.loadNotes() = _LoadNotes;
-  const factory NoteEvent.createNote(Note note) = _CreateNote;
-  const factory NoteEvent.updateNote(Note note) = _UpdateNote;
-  const factory NoteEvent.deleteNote(String id) = _DeleteNote;
+  const factory NoteEvent.loadNotes() = NoteEventLoadNotes;
+  const factory NoteEvent.createNote(Note note) = NoteEventCreateNote;
+  const factory NoteEvent.updateNote(Note note) = NoteEventUpdateNote;
+  const factory NoteEvent.deleteNote(String id) = NoteEventDeleteNote;
 }
 
 // States
 @freezed
 sealed class NoteState with _$NoteState {
-  const factory NoteState.initial() = _Initial;
-  const factory NoteState.loading() = _Loading;
-  const factory NoteState.loaded(List<Note> notes) = _Loaded;
-  const factory NoteState.error(String message) = _Error;
+  const factory NoteState.initial() = NoteStateInitial;
+  const factory NoteState.loading() = NoteStateLoading;
+  const factory NoteState.loaded(List<Note> notes) = NoteStateLoaded;
+  const factory NoteState.error(String message) = NoteStateError;
 }
 
 // BLoC
@@ -368,18 +368,17 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
     this._deleteNote,
   ) : super(const NoteState.initial()) {
     on<NoteEvent>((event, emit) async {
-      await event.map(
-        loadNotes: (_) async {
+      switch (event) {
+        case NoteEventLoadNotes():
           emit(const NoteState.loading());
           final result = await _getNotes(const NoParams());
           result.fold(
             (failure) => emit(NoteState.error(failure.message)),
             (notes) => emit(NoteState.loaded(notes)),
           );
-        },
-        createNote: (e) async {
+        case NoteEventCreateNote(:final note):
           emit(const NoteState.loading());
-          final result = await _createNote(e.note);
+          final result = await _createNote(note);
           await result.fold(
             (failure) async => emit(NoteState.error(failure.message)),
             (_) async {
@@ -390,10 +389,9 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
               );
             },
           );
-        },
-        updateNote: (e) async {
+        case NoteEventUpdateNote(:final note):
           emit(const NoteState.loading());
-          final result = await _updateNote(e.note);
+          final result = await _updateNote(note);
           await result.fold(
             (failure) async => emit(NoteState.error(failure.message)),
             (_) async {
@@ -404,10 +402,9 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
               );
             },
           );
-        },
-        deleteNote: (e) async {
+        case NoteEventDeleteNote(:final id):
           emit(const NoteState.loading());
-          final result = await _deleteNote(e.id);
+          final result = await _deleteNote(id);
           await result.fold(
             (failure) async => emit(NoteState.error(failure.message)),
             (_) async {
@@ -418,8 +415,7 @@ class NoteBloc extends Bloc<NoteEvent, NoteState> {
               );
             },
           );
-        },
-      );
+      }
     });
   }
 }
@@ -516,10 +512,10 @@ class NoteListPage extends StatelessWidget {
       ),
       body: BlocBuilder<NoteBloc, NoteState>(
         builder: (context, state) {
-          return state.when(
-            initial: () => const Center(child: Text('Press + to add a note')),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            loaded: (notes) => notes.isEmpty
+          return switch (state) {
+            NoteStateInitial() => const Center(child: Text('Press + to add a note')),
+            NoteStateLoading() => const Center(child: CircularProgressIndicator()),
+            NoteStateLoaded(:final notes) => notes.isEmpty
                 ? const Center(child: Text('No notes yet'))
                 : ListView.builder(
                     itemCount: notes.length,
@@ -533,8 +529,8 @@ class NoteListPage extends StatelessWidget {
                       ),
                     ),
                   ),
-            error: (message) => Center(child: Text('Error: $message')),
-          );
+            NoteStateError(:final message) => Center(child: Text('Error: $message')),
+          };
         },
       ),
       floatingActionButton: FloatingActionButton(

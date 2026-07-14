@@ -178,7 +178,7 @@ class Likes extends Table {
 
 ```dart
 // lib/features/blog/domain/repositories/user_repository.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/user.dart';
 
@@ -401,7 +401,7 @@ class PostLocalDataSourceImpl implements PostLocalDataSource {
 
 ```dart
 // lib/features/blog/domain/usecases/get_post_feed.dart
-import 'package:dartz/dartz.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';

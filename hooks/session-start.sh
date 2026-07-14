@@ -14,36 +14,35 @@ if [[ ! -f "$SKILL_FILE" ]]; then
 fi
 
 skill_content=$(cat "$SKILL_FILE")
+# Strip CR so CRLF checkouts don't leak literal \r into the injected context
+skill_content="${skill_content//$'\r'/}"
 
-# Function to escape content for JSON
+context="<EXTREMELY_IMPORTANT>
+You have flutter-craft skills available.
+
+${skill_content}
+</EXTREMELY_IMPORTANT>"
+
+# Output JSON for Claude Code to consume — jq guarantees valid escaping
+if command -v jq &>/dev/null; then
+    jq -n --arg ctx "$context" '{
+      "hookSpecificOutput": {
+        "hookEventName": "SessionStart",
+        "additionalContext": $ctx
+      }
+    }'
+    exit 0
+fi
+
+# Fallback without jq: pure-bash JSON escaping (backslash first, then the rest)
 escape_for_json() {
-    local input="$1"
-    local output=""
-    local i char
-
-    for ((i=0; i<${#input}; i++)); do
-        char="${input:$i:1}"
-        case "$char" in
-            $'\\') output+='\\\\';;
-            '"') output+='\\"';;
-            $'\n') output+='\\n';;
-            $'\r') output+='\\r';;
-            $'\t') output+='\\t';;
-            *) output+="$char";;
-        esac
-    done
-
-    printf '%s' "$output"
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\t'/\\t}"
+    s="${s//$'\n'/\\n}"
+    printf '%s' "$s"
 }
 
-escaped_content=$(escape_for_json "$skill_content")
-
-# Output JSON for Claude Code to consume
-cat <<EOF
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": "<EXTREMELY_IMPORTANT>\nYou have flutter-craft skills available.\n\n${escaped_content}\n</EXTREMELY_IMPORTANT>"
-  }
-}
-EOF
+escaped_content=$(escape_for_json "$context")
+printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$escaped_content"

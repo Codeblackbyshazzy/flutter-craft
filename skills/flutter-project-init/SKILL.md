@@ -187,28 +187,31 @@ sealed class Comment with _$Comment {
 silently resolves a broken `-dev` prerelease of freezed that generates nothing.
 Check `flutter --version` and run `flutter upgrade` first if outdated.
 
-Install each group in a SINGLE `flutter pub add` command, with runtime and
-`dev:` codegen packages together — installing them one at a time (or dev deps
-in a separate pass) wedges the version solver: an early standalone install
-locks a major that a later package can't use (get_it vs injectable, drift vs
-injectable_generator via their analyzer/source_gen constraints).
+Install EVERYTHING your preset needs in ONE `flutter pub add` command — a
+single resolver pass. Sequential installs wedge the solver: each pass pins
+the newest carets, and the codegen cluster (freezed / drift_dev /
+injectable_generator / riverpod_generator) rides different analyzer majors,
+so a later group can become unsolvable against what an earlier group locked.
+One pass lets pub pick a mutually compatible all-stable set.
 
 ```bash
-# Minimal preset (always included; path_provider/path required by app_database.dart)
-flutter pub add freezed_annotation drift path_provider path get_it injectable dev:freezed dev:build_runner dev:injectable_generator dev:drift_dev
+# Full preset + Riverpod (remove what your preset doesn't need — but never
+# split runtime and dev: codegen packages into separate commands).
+# path_provider/path are required by app_database.dart.
+# fpdart = Either for error handling (dartz is unmaintained).
+flutter pub add freezed_annotation drift path_provider path get_it injectable flutter_riverpod riverpod_annotation go_router dio fpdart easy_localization responsive_framework dev:freezed dev:build_runner dev:injectable_generator dev:drift_dev dev:riverpod_generator
 
-# State management (per Step 3 selection — exactly one)
-flutter pub add flutter_riverpod riverpod_annotation dev:riverpod_generator
-# or:
+# Using BLoC instead of Riverpod: drop flutter_riverpod, riverpod_annotation
+# and dev:riverpod_generator from the command above and run:
 flutter pub add flutter_bloc
 
-# Essential preset adds (fpdart = Either for error handling; dartz is unmaintained)
-flutter pub add go_router dio fpdart
-
-# Full preset adds
-flutter pub add easy_localization responsive_framework
-flutter pub add firebase_auth      # Optional
+# Optional (Full preset):
+flutter pub add firebase_auth
 ```
+
+After installing, confirm no `-dev`/`-beta` prerelease slipped into
+pubspec.yaml — a prerelease there means the solver couldn't find a stable
+set and the codegen output is not trustworthy.
 
 ---
 

@@ -39,6 +39,14 @@ grep -E '^flutter pub add ' "${SKILL}" | while IFS= read -r line; do
     ${cmd}
 done
 
+echo "== Guard: no prerelease may have been resolved into pubspec.yaml"
+# A -dev/-beta caret in pubspec means the solver couldn't find a stable set —
+# exactly the failure mode the skill warns about. Fail loudly, not at analyze.
+if grep -nE '\^?[0-9]+\.[0-9]+\.[0-9]+-(dev|beta|alpha)' pubspec.yaml; then
+    echo "ERROR: prerelease dependency resolved (see above) — the skill's package set no longer has a stable solution." >&2
+    exit 1
+fi
+
 echo "== Writing base files from the skill's '#### <path>' dart blocks"
 current=""
 in_code=0

@@ -321,7 +321,7 @@ void main() {
 
 ## Priority 4: Golden Tests (Visual Regression)
 
-디자인 시스템 컴포넌트의 시각적 일관성을 검증합니다. UI가 의도치 않게 변경되는 것을 방지합니다.
+Verifies the visual consistency of design system components. Prevents unintended UI changes.
 
 ### Golden Test Template
 
@@ -331,7 +331,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('LoginButton matches golden', (tester) async {
-    // 고정 크기로 일관된 스크린샷 보장
+    // Fixed size guarantees consistent screenshots
     await tester.binding.setSurfaceSize(const Size(400, 200));
 
     await tester.pumpWidget(
@@ -375,35 +375,35 @@ void main() {
 ### Golden File Management
 
 ```bash
-# 최초 생성 / 기준선 업데이트 (의도적 변경 후)
+# Initial generation / baseline update (after intentional changes)
 flutter test --update-goldens
 
-# 비교 실행 (CI/CD에서 사용)
+# Comparison run (used in CI/CD)
 flutter test --tags golden
 
-# 특정 파일만
+# Specific files only
 flutter test test/features/auth/presentation/widgets/login_button_golden_test.dart --update-goldens
 ```
 
-### 테스트 파일 명명 규칙
+### Test File Naming Convention
 
-골든 테스트 파일은 `_golden_test.dart` 접미사로 구분:
+Golden test files are distinguished by the `_golden_test.dart` suffix:
 ```
 test/features/auth/presentation/widgets/
-├── login_button_test.dart         # 기능 테스트 (Priority 3)
-└── login_button_golden_test.dart  # 골든 테스트 (Priority 4)
+├── login_button_test.dart         # Functional test (Priority 3)
+└── login_button_golden_test.dart  # Golden test (Priority 4)
 ```
 
-### 태그 기반 실행
+### Tag-Based Execution
 
-`dart_test.yaml`에서 골든 테스트를 태그로 분리:
+Separate golden tests with a tag in `dart_test.yaml`:
 ```yaml
 tags:
   golden:
-    # CI에서 별도 실행 가능
+    # Can be run separately in CI
 ```
 
-테스트 파일에 태그 추가:
+Add the tag to test files:
 ```dart
 @Tags(['golden'])
 library;
@@ -412,26 +412,26 @@ import 'package:flutter_test/flutter_test.dart';
 // ...
 ```
 
-### Golden Test 작성 시 주의사항
+### Caveats When Writing Golden Tests
 
-1. **고정 크기**: `setSurfaceSize()`로 일관된 캔버스 크기 설정
-2. **결정적 데이터**: 랜덤/시간 의존 데이터 사용 금지
-3. **폰트 로딩**: 커스텀 폰트는 `FontLoader`로 미리 로드
-4. **네트워크 이미지**: Mock으로 대체 (네트워크 의존성 제거)
-5. **플랫폼 차이**: macOS/Linux/Windows에서 렌더링이 다를 수 있음 → CI 환경 고정
+1. **Fixed size**: Set a consistent canvas size with `setSurfaceSize()`
+2. **Deterministic data**: Never use random or time-dependent data
+3. **Font loading**: Preload custom fonts with `FontLoader`
+4. **Network images**: Replace with mocks (remove network dependency)
+5. **Platform differences**: Rendering can differ across macOS/Linux/Windows → pin the CI environment
 
-### 언제 Golden Test를 작성하는가
+### When to Write Golden Tests
 
-- 디자인 시스템 컴포넌트 (Button, Card, Input, Badge 등)
-- 테마 변경 후 시각적 영향 검증
-- 다크 모드 / 라이트 모드 전환 검증
-- 반응형 레이아웃의 브레이크포인트별 검증
+- Design system components (Button, Card, Input, Badge, etc.)
+- Verifying visual impact after theme changes
+- Verifying dark mode / light mode switching
+- Verifying responsive layouts at each breakpoint
 
-### 언제 Golden Test를 건너뛰는가
+### When to Skip Golden Tests
 
-- 비즈니스 로직 위주 화면 (데이터 표시만 다름)
-- 자주 변경되는 화면 (골든 파일 업데이트 비용 > 이득)
-- 외부 데이터에 크게 의존하는 화면
+- Business-logic-heavy screens (only the displayed data differs)
+- Frequently changing screens (golden file update cost > benefit)
+- Screens heavily dependent on external data
 
 ## Test File Structure
 

@@ -1,6 +1,7 @@
+<!-- assumes: Flutter 3.3x+ / Dart 3.x, freezed ^3.0 (sealed/abstract + switch patterns), drift ^2.x, flutter_riverpod ^2.x, flutter_bloc ^9, go_router ^14+, fpdart ^1.x. If the ecosystem moves past these, re-verify every code block here. -->
 # Relational Pattern Template
 
-다중 엔티티 관계 패턴. 예: Blog (User-Post-Comment), E-commerce (User-Order-Item)
+Multi-entity relationship pattern. Examples: Blog (User-Post-Comment), E-commerce (User-Order-Item)
 
 ## Entities
 

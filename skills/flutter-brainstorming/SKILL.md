@@ -132,9 +132,9 @@ class Auth extends _$Auth {
    - Error states
 
 5. **Testing Strategy** (priority-based)
-   - 1순위: Repository, DataSource unit tests
-   - 2순위: State management (BLoC/Provider) unit tests
-   - 3순위: Widget tests (optional)
+   - Priority 1: Repository, DataSource unit tests
+   - Priority 2: State management (BLoC/Provider) unit tests
+   - Priority 3: Widget tests (optional)
 
 **Ask after each section:** "Does this look right so far?"
 

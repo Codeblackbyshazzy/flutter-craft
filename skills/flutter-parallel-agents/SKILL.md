@@ -95,11 +95,15 @@ Each agent gets:
 
 ### 3. Dispatch in Parallel
 
+Use `subagent_type: "flutter-craft:flutter-dart-specialist"` for implementation
+agents — its definition carries the Flutter/Dart norms (Riverpod patterns,
+widget principles, recommended packages), so prompts stay task-only.
+
 ```
 Task("Implement auth domain layer - entities and repository interface")
 Task("Implement profile domain layer - entities and repository interface")
 Task("Implement settings domain layer - entities and repository interface")
-// All three run concurrently
+// All three run concurrently, each as flutter-craft:flutter-dart-specialist
 ```
 
 ### 4. Review and Integrate

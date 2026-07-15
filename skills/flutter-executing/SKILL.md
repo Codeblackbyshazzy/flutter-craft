@@ -38,14 +38,14 @@ Load plan, review critically, execute tasks in batches, run Flutter verification
    - Are there any gaps in the plan?
 
 5. **If concerns:** Raise them before starting
-6. **If no concerns:** Create TodoWrite and proceed
+6. **If no concerns:** Create todo entries (task tracking tool) and proceed
 
 ### Step 2: Execute Batch
 
 **Default: First 3 tasks**
 
 For each task:
-1. Mark as in_progress in TodoWrite
+1. Mark as in_progress in the task tracker
 2. Create/modify files as specified
 3. Write complete code (from plan)
 4. Run verification:
@@ -57,7 +57,7 @@ For each task:
    git add <files>
    git commit -m "<conventional commit message>"
    ```
-6. Mark as completed in TodoWrite
+6. Mark as completed in the task tracker
 
 ### Step 3: Verify Batch
 

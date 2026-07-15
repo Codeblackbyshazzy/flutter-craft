@@ -34,9 +34,9 @@ Write comprehensive implementation plans assuming the engineer has zero context 
    └── Screens
 
 4. Tests (After implementation)
-   ├── 1순위: Repository, DataSource unit tests
-   ├── 2순위: State management unit tests
-   └── 3순위: Widget tests (optional)
+   ├── Priority 1: Repository, DataSource unit tests
+   ├── Priority 2: State management unit tests
+   └── Priority 3: Widget tests (optional)
 
 5. Integration & Wiring
    └── DI setup (get_it, injectable, etc.)

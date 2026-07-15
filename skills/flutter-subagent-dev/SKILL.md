@@ -32,7 +32,7 @@ Have implementation plan?
 ## The Process
 
 ```
-1. Read plan, extract all tasks, create TodoWrite
+1. Read plan, extract all tasks, create todo entries (task tracking tool)
    ↓
 2. For each task:
    ├─ Dispatch implementer subagent
@@ -56,6 +56,11 @@ Have implementation plan?
 ## Subagent Prompt Templates
 
 ### Implementer Subagent
+
+Dispatch with `subagent_type: "flutter-craft:flutter-dart-specialist"` — its
+agent definition carries the Flutter/Dart implementation norms (Riverpod
+patterns, widget principles, performance, recommended packages) so they don't
+need to be pasted into the prompt.
 
 ```markdown
 You are implementing Task N: [task name]
@@ -188,7 +193,7 @@ You: I'm using Flutter Subagent-Driven Development to execute this plan.
 
 [Read plan: docs/plans/auth-plan.md]
 [Extract all 5 tasks with context]
-[Create TodoWrite with all tasks]
+[Create todo entries for all tasks]
 
 Task 1: User Entity (Domain Layer)
 

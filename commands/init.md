@@ -1,5 +1,6 @@
 ---
 description: "Use this to create a NEW Flutter project from scratch with Clean Architecture and Feature-Driven Development structure."
+argument-hint: <project name or description>
 ---
 
 Use and follow the flutter-project-init skill exactly as written.

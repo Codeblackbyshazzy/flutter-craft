@@ -1,6 +1,7 @@
+<!-- assumes: Flutter 3.3x+ / Dart 3.x, freezed ^3.0 (sealed/abstract + switch patterns), drift ^2.x, flutter_riverpod ^2.x, flutter_bloc ^9, go_router ^14+, fpdart ^1.x. If the ecosystem moves past these, re-verify every code block here. -->
 # Tracked Pattern Template
 
-시간/날짜 기반 트래킹 패턴. 예: Habit, Workout, Study
+Time/date-based tracking pattern. Examples: Habit, Workout, Study
 
 ## Entities
 

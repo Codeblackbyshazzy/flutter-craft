@@ -1,0 +1,25 @@
+name: scaffold-smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly run catches ecosystem drift (new package majors, deprecated
+    # commands) even when the repo itself hasn't changed.
+    - cron: '0 3 * * 1'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Scaffold from flutter-project-init skill and validate
+        run: bash ci/smoke-scaffold.sh "${RUNNER_TEMP}/smoke"

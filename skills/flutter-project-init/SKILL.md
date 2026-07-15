@@ -31,20 +31,20 @@ Ask user for:
 
 ---
 
-## Step 2: Domain Pattern Selection (CRUD 기반)
+## Step 2: Domain Pattern Selection (CRUD-based)
 
 Ask user to choose:
 
 | Pattern | Examples | Generated Structure |
 |---------|----------|---------------------|
-| **Simple** | Note, Memo, Bookmark | 단일 엔티티 CRUD |
-| **Stateful** | Todo, Task, Order | 상태 필드 포함 (완료/진행중 등) |
-| **Categorized** | Expense, Product, Recipe | 카테고리 관계 포함 |
-| **Tracked** | Habit, Workout, Study | 시간/날짜 기반 트래킹 |
-| **Relational** | Blog (User-Post-Comment) | 다중 엔티티 관계 |
-| **Custom** | - | 사용자 정의 필드 |
+| **Simple** | Note, Memo, Bookmark | Single-entity CRUD |
+| **Stateful** | Todo, Task, Order | Includes a status field (done/in-progress, etc.) |
+| **Categorized** | Expense, Product, Recipe | Includes a category relationship |
+| **Tracked** | Habit, Workout, Study | Time/date-based tracking |
+| **Relational** | Blog (User-Post-Comment) | Multi-entity relationships |
+| **Custom** | - | User-defined fields |
 
-### Pattern별 생성 코드
+### Generated Code per Pattern
 
 #### Simple Pattern
 ```dart
@@ -166,7 +166,7 @@ sealed class Comment with _$Comment {
 
 ## Step 3: Tech Stack Selection
 
-### State Management (필수 선택)
+### State Management (required choice)
 
 | Option | Description |
 |--------|-------------|
@@ -183,33 +183,30 @@ sealed class Comment with _$Comment {
 
 ### Feature Details
 
+**Prerequisite:** a recent stable Flutter SDK (Dart >= 3.9). On older SDKs pub
+silently resolves a broken `-dev` prerelease of freezed that generates nothing.
+Check `flutter --version` and run `flutter upgrade` first if outdated.
+
+Install each group in a SINGLE `flutter pub add` command, with runtime and
+`dev:` codegen packages together — installing them one at a time (or dev deps
+in a separate pass) wedges the version solver: an early standalone install
+locks a major that a later package can't use (get_it vs injectable, drift vs
+injectable_generator via their analyzer/source_gen constraints).
+
 ```bash
-# Minimal preset (always included)
-flutter pub add freezed_annotation
-flutter pub add drift
-flutter pub add path_provider      # required by app_database.dart
-flutter pub add path               # required by app_database.dart
-flutter pub add get_it
-flutter pub add injectable
-flutter pub add dev:freezed
-flutter pub add dev:build_runner
-flutter pub add dev:injectable_generator
-flutter pub add dev:drift_dev
+# Minimal preset (always included; path_provider/path required by app_database.dart)
+flutter pub add freezed_annotation drift path_provider path get_it injectable dev:freezed dev:build_runner dev:injectable_generator dev:drift_dev
 
 # State management (per Step 3 selection — exactly one)
-flutter pub add flutter_riverpod riverpod_annotation
-flutter pub add dev:riverpod_generator
+flutter pub add flutter_riverpod riverpod_annotation dev:riverpod_generator
 # or:
 flutter pub add flutter_bloc
 
-# Essential preset adds
-flutter pub add go_router
-flutter pub add dio
-flutter pub add fpdart             # Either type for error handling (dartz is unmaintained)
+# Essential preset adds (fpdart = Either for error handling; dartz is unmaintained)
+flutter pub add go_router dio fpdart
 
 # Full preset adds
-flutter pub add easy_localization
-flutter pub add responsive_framework
+flutter pub add easy_localization responsive_framework
 flutter pub add firebase_auth      # Optional
 ```
 
@@ -423,4 +420,4 @@ For detailed code templates per pattern, see:
 - `references/tracked-pattern.md`
 - `references/relational-pattern.md`
 
-> **Note:** Custom 패턴은 사용자 정의 필드를 직접 설계하므로 별도 템플릿이 없습니다.
+> **Note:** The Custom pattern has no dedicated template because you design the user-defined fields yourself.

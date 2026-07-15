@@ -25,7 +25,7 @@ User message received
 Might any skill apply? (even 1%?)
     ├─ YES → Invoke Skill tool: flutter-craft:<skill-name>
     │        → Announce: "Using [skill] to [purpose]"
-    │        → Has checklist? → Create TodoWrite per item
+    │        → Has checklist? → Create a todo entry per item (task tracking tool)
     │        → Follow skill exactly
     └─ NO  → Respond (including clarifications)
 ```

@@ -1,6 +1,7 @@
+<!-- assumes: Flutter 3.3x+ / Dart 3.x, freezed ^3.0 (sealed/abstract + switch patterns), drift ^2.x, flutter_riverpod ^2.x, flutter_bloc ^9, go_router ^14+, fpdart ^1.x. If the ecosystem moves past these, re-verify every code block here. -->
 # Stateful Pattern Template
 
-상태 필드가 있는 엔티티 CRUD 패턴. 예: Todo, Task, Order
+Entity CRUD pattern with a status field. Examples: Todo, Task, Order
 
 ## Entity
 

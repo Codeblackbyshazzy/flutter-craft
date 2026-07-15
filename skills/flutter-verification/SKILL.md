@@ -67,7 +67,7 @@ flutter test test/features/<feature>/data/repositories/user_repository_test.dart
 00:03 +10 -2: Some tests failed.
 ```
 
-### 3. Build Verification (finishing 단계에서 1회 — 매 완료 주장마다 아님)
+### 3. Build Verification (once at the finishing stage — not on every completion claim)
 
 Run against the project's actual target platform only:
 
@@ -247,53 +247,53 @@ project's actual target platform.
 
 ## 5. Visual Verification (Optional — Flutter Web)
 
-UI 변경이 포함된 작업에서, design-polish 플러그인이 설치되어 있다면 시각적 검증을 수행합니다.
-**설치되어 있지 않으면 이 단계를 건너뜁니다 (SOFT_FAIL).**
+For work that includes UI changes, perform visual verification if the design-polish plugin is installed.
+**If it is not installed, skip this step (SOFT_FAIL).**
 
-### 전제 조건
+### Prerequisites
 
-- design-polish 플러그인 설치됨 (`~/.claude/plugins/marketplaces/design-polish` 또는 `~/.claude/plugins/design-polish`)
-- `scripts/capture.cjs` 존재
-- Node.js + npx 사용 가능
+- design-polish plugin installed (`~/.claude/plugins/marketplaces/design-polish` or `~/.claude/plugins/design-polish`)
+- `scripts/capture.cjs` exists
+- Node.js + npx available
 
-### 절차
+### Procedure
 
-1. **Flutter Web 빌드**
+1. **Build Flutter Web**
    ```bash
    flutter build web
    ```
 
-2. **빌드 결과 로컬 서빙**
+2. **Serve the build output locally**
    ```bash
    npx serve build/web -l 3000 &
    SERVER_PID=$!
    ```
 
-3. **스크린샷 + WCAG 체크**
+3. **Screenshot + WCAG check**
    ```bash
    BASE_URL=http://localhost:3000 node <design-polish-path>/scripts/capture.cjs --wcag /
    ```
 
-4. **결과 확인**
-   - `.design-polish/health-score.json`: 디자인 건강 점수 (0-100)
-   - `.design-polish/accessibility/wcag-report.json`: WCAG 위반 사항
-   - `.design-polish/screenshots/current-main.png`: 현재 스크린샷
+4. **Check the results**
+   - `.design-polish/health-score.json`: design health score (0-100)
+   - `.design-polish/accessibility/wcag-report.json`: WCAG violations
+   - `.design-polish/screenshots/current-main.png`: current screenshot
 
-5. **서버 종료**
+5. **Stop the server**
    ```bash
    kill $SERVER_PID 2>/dev/null
    ```
 
-### 판정 기준
+### Verdict Criteria
 
-| 결과 | 조건 | 액션 |
+| Result | Condition | Action |
 |------|------|------|
-| **PASS** | WCAG 위반 0개, Health Score ≥ 60 | 완료 |
-| **WARN** | WCAG 위반 1-3개 (minor/moderate) | 개선 권장, 차단 아님 |
-| **FAIL** | WCAG critical 위반 존재 | 수정 권장 (SOFT_FAIL: 차단하지 않음) |
-| **SKIP** | design-polish 미설치 | 건너뜀 |
+| **PASS** | 0 WCAG violations, Health Score ≥ 60 | Done |
+| **WARN** | 1-3 WCAG violations (minor/moderate) | Improvement recommended, not blocking |
+| **FAIL** | Critical WCAG violation exists | Fix recommended (SOFT_FAIL: does not block) |
+| **SKIP** | design-polish not installed | Skipped |
 
-### 증거 기록
+### Evidence Record
 
 ```markdown
 **Visual Verification:**

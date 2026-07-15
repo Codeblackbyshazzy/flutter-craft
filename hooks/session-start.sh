@@ -27,23 +27,20 @@ if [[ "$flutter_project_found" != "true" ]]; then
     exit 0
 fi
 
-# Read the start-flutter-craft skill content
-SKILL_FILE="${PLUGIN_ROOT}/skills/start-flutter-craft/SKILL.md"
-
-if [[ ! -f "$SKILL_FILE" ]]; then
-    echo '{"error": "start-flutter-craft/SKILL.md not found"}'
-    exit 1
-fi
-
-skill_content=$(cat "$SKILL_FILE")
-# Strip CR so CRLF checkouts don't leak literal \r into the injected context
-skill_content="${skill_content//$'\r'/}"
-
-context="<EXTREMELY_IMPORTANT>
-You have flutter-craft skills available.
-
-${skill_content}
-</EXTREMELY_IMPORTANT>"
+# Compact pointer only — the full gatekeeper doc (start-flutter-craft) loads
+# on demand via the Skill tool. Injecting the whole skill here cost ~6KB per
+# session (and again on every compact); the summary keeps the trigger rules
+# without the standing tax.
+context="<flutter-craft>
+Flutter project detected. flutter-craft skills are available — invoke the matching skill via the Skill tool BEFORE responding:
+- New feature/component/behavior change → flutter-craft:flutter-brainstorming (chains to planning → executing)
+- Bug, error, test failure → flutter-craft:flutter-debugging
+- About to claim done/complete/fixed → flutter-craft:flutter-verification FIRST
+- Writing tests → flutter-craft:flutter-testing | Code review → flutter-craft:flutter-review-request
+- New Flutter project from scratch → flutter-craft:flutter-project-init
+Trivial change (single file, no behavior/state/dependency change): edit directly, then flutter-verification only.
+Full skill list and rules: invoke flutter-craft:start-flutter-craft.
+</flutter-craft>"
 
 # Output JSON for Claude Code to consume — jq guarantees valid escaping
 if command -v jq &>/dev/null; then

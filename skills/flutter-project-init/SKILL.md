@@ -209,9 +209,10 @@ flutter pub add flutter_bloc
 flutter pub add firebase_auth
 ```
 
-After installing, confirm no `-dev`/`-beta` prerelease slipped into
-pubspec.yaml — a prerelease there means the solver couldn't find a stable
-set and the codegen output is not trustworthy.
+After installing, check pubspec.yaml for `-dev`/`-beta` prereleases. One may
+appear while the ecosystem migrates across analyzer majors; that alone is not
+fatal, but it makes Step 4.6 (`flutter analyze` after codegen) mandatory
+evidence — if generation silently produced nothing, analyze fails there.
 
 ---
 
